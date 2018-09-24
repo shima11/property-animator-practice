@@ -35,15 +35,15 @@ class ViewController: UIViewController {
     @IBOutlet weak var dampingSlider: UISlider!
 
     @IBAction func changeMassSlider(_ sender: Any) {
-        massValueLabel.text = String(format: "%.2f", massSlider.value)
+        massValueLabel.text = String(format: "%.0f", massSlider.value)
     }
     
     @IBAction func changeStiffnessSlider(_ sender: Any) {
-        stiffnessValueLabel.text = String(format: "%.2f", stiffnessSlider.value)
+        stiffnessValueLabel.text = String(format: "%.0f", stiffnessSlider.value)
     }
 
     @IBAction func changeDampingSlider(_ sender: Any) {
-        dampingValueLabel.text = String(format: "%.2f", dampingSlider.value)
+        dampingValueLabel.text = String(format: "%.0f", dampingSlider.value)
     }
 
     var animator: UIViewPropertyAnimator!
@@ -61,9 +61,9 @@ class ViewController: UIViewController {
         dampingSlider.minimumValue = 0
         dampingSlider.maximumValue = 1000
 
-        massValueLabel.text = String(format: "%.2f", massSlider.value)
-        stiffnessValueLabel.text = String(format: "%.2f", stiffnessSlider.value)
-        dampingValueLabel.text = String(format: "%.2f", dampingSlider.value)
+        massValueLabel.text = String(format: "%.0f", massSlider.value)
+        stiffnessValueLabel.text = String(format: "%.0f", stiffnessSlider.value)
+        dampingValueLabel.text = String(format: "%.0f", dampingSlider.value)
 
         let gesture = UIPanGestureRecognizer(target: self, action: #selector(dragTargetView(gesture:)))
         targetView.addGestureRecognizer(gesture)
