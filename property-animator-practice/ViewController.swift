@@ -16,41 +16,12 @@ class ViewController: UIViewController {
     }
 
     @IBAction func didTapStartButton(_ sender: Any) {
-        setAnimation()
+        setAnimation(initialVelocity: .zero)
         animator.startAnimation()
     }
 
     @IBAction func didTapStopButton(_ sender: Any) {
         animator.pauseAnimation()
-    }
-
-    func setAnimation() {
-
-        if animator != nil {
-            animator.stopAnimation(false)
-            animator.finishAnimation(at: .start)
-        }
-
-        let springCurve = UISpringTimingParameters(
-            mass: CGFloat(massSlider?.value ?? 0),
-            stiffness: CGFloat(stiffnessSlider?.value ?? 0),
-            damping: CGFloat(dampingSlider?.value ?? 0),
-            initialVelocity: CGVector.zero
-        )
-
-        animator = UIViewPropertyAnimator(
-            duration: 1,
-            timingParameters: springCurve
-        )
-        animator.finishAnimation(at: .start)
-
-        animator.addAnimations {
-            self.targetView.center = CGPoint(x: UIScreen.main.bounds.width/2, y: 100)
-        }
-
-        animator.addCompletion { _ in
-            self.targetView.center = self.view.center
-        }
     }
 
     @IBOutlet weak var targetView: UIView!
@@ -81,20 +52,72 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         massSlider.minimumValue = 0
-        massSlider.maximumValue = 1
+        massSlider.maximumValue = 1000
 
         stiffnessSlider.minimumValue = 0
-        stiffnessSlider.maximumValue = 1
+        stiffnessSlider.maximumValue = 1000
+
 
         dampingSlider.minimumValue = 0
-        dampingSlider.maximumValue = 1
+        dampingSlider.maximumValue = 1000
 
         massValueLabel.text = String(format: "%.2f", massSlider.value)
         stiffnessValueLabel.text = String(format: "%.2f", stiffnessSlider.value)
         dampingValueLabel.text = String(format: "%.2f", dampingSlider.value)
 
+        let gesture = UIPanGestureRecognizer(target: self, action: #selector(dragTargetView(gesture:)))
+        targetView.addGestureRecognizer(gesture)
+
     }
 
+    func setAnimation(initialVelocity: CGVector) {
+
+        if animator != nil {
+            animator.stopAnimation(false)
+            animator.finishAnimation(at: .start)
+        }
+
+        let springCurve = UISpringTimingParameters(
+            mass: CGFloat(massSlider?.value ?? 0),
+            stiffness: CGFloat(stiffnessSlider?.value ?? 0),
+            damping: CGFloat(dampingSlider?.value ?? 0),
+            initialVelocity: initialVelocity
+        )
+
+        animator = UIViewPropertyAnimator(
+            duration: 0.1,
+            timingParameters: springCurve
+        )
+        animator.finishAnimation(at: .start)
+
+        animator.addAnimations {
+            self.targetView.center = self.view.center
+        }
+
+        animator.addCompletion { _ in
+            self.targetView.center = self.view.center
+        }
+    }
+
+    var i: CGPoint = .zero
+
+    @objc func dragTargetView(gesture: UIPanGestureRecognizer) {
+
+        switch gesture.state {
+        case .began:
+            i = gesture.view?.center ?? .zero
+        case .changed:
+            let t = gesture.translation(in: view)
+            let center = CGPoint(x: i.x + t.x, y: i.y + t.y)
+            targetView.center = center
+        case .ended, .cancelled, .failed:
+            let v = gesture.velocity(in: view)
+            setAnimation(initialVelocity: CGVector(dx: v.x/500, dy: v.y/500))
+            animator.startAnimation()
+        default:
+            break
+        }
+    }
 
 }
 
